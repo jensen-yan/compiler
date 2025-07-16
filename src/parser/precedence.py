@@ -106,7 +106,7 @@ class 运算符优先级:
         Returns:
             如果是一元运算符返回True
         """
-        return token_type in {TokenType.非, TokenType.减, TokenType.加}
+        return token_type in {TokenType.非, TokenType.减}
     
     @classmethod
     def is_右结合(cls, token_type: TokenType) -> bool:

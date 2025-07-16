@@ -138,23 +138,18 @@ class Parser:
         Returns:
             语句AST节点
         """
-        try:
-            if self.match(TokenType.函数):
-                return self.parse_function_declaration()
-            elif self.match(TokenType.如果):
-                return self.parse_if_statement()
-            elif self.match(TokenType.当):
-                return self.parse_while_statement()
-            elif self.match(TokenType.返回):
-                return self.parse_return_statement()
-            elif self.match(TokenType.左大括号):
-                return self.parse_block_statement()
-            else:
-                return self.parse_expression_statement()
-        except ParserError:
-            # 错误恢复：跳到下一个语句
-            self.synchronize()
-            return None
+        if self.match(TokenType.函数):
+            return self.parse_function_declaration()
+        elif self.match(TokenType.如果):
+            return self.parse_if_statement()
+        elif self.match(TokenType.当):
+            return self.parse_while_statement()
+        elif self.match(TokenType.返回):
+            return self.parse_return_statement()
+        elif self.match(TokenType.左大括号):
+            return self.parse_block_statement()
+        else:
+            return self.parse_expression_statement()
     
     def parse_function_declaration(self) -> 函数声明语句:
         """
