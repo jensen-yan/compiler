@@ -262,6 +262,11 @@ class 类型系统:
     def _算术运算类型规则(self, left_type: 类型, right_type: 类型) -> Optional[类型]:
         """算术运算类型规则"""
         if isinstance(left_type, 基本类型) and isinstance(right_type, 基本类型):
+            # 如果有未知类型，返回未知类型
+            if (left_type.类型值 == 基本类型枚举.未知 or 
+                right_type.类型值 == 基本类型枚举.未知):
+                return self.未知类型
+            
             # 两个都是数值类型
             if left_type.is_numeric() and right_type.is_numeric():
                 # 如果有浮点数，结果是浮点数
@@ -281,6 +286,11 @@ class 类型系统:
     def _比较运算类型规则(self, left_type: 类型, right_type: 类型) -> Optional[类型]:
         """比较运算类型规则"""
         if isinstance(left_type, 基本类型) and isinstance(right_type, 基本类型):
+            # 如果有未知类型，返回布尔值类型
+            if (left_type.类型值 == 基本类型枚举.未知 or 
+                right_type.类型值 == 基本类型枚举.未知):
+                return self.布尔值类型
+            
             # 数值类型可以比较
             if left_type.is_numeric() and right_type.is_numeric():
                 return self.布尔值类型
@@ -294,6 +304,11 @@ class 类型系统:
     def _逻辑运算类型规则(self, left_type: 类型, right_type: 类型) -> Optional[类型]:
         """逻辑运算类型规则"""
         if isinstance(left_type, 基本类型) and isinstance(right_type, 基本类型):
+            # 如果有未知类型，返回布尔值类型
+            if (left_type.类型值 == 基本类型枚举.未知 or 
+                right_type.类型值 == 基本类型枚举.未知):
+                return self.布尔值类型
+            
             # 布尔值可以进行逻辑运算
             if (left_type.类型值 == 基本类型枚举.布尔值 and 
                 right_type.类型值 == 基本类型枚举.布尔值):
@@ -303,13 +318,21 @@ class 类型系统:
     
     def _一元减法类型规则(self, operand_type: 类型) -> Optional[类型]:
         """一元减法类型规则"""
-        if isinstance(operand_type, 基本类型) and operand_type.is_numeric():
-            return operand_type
+        if isinstance(operand_type, 基本类型):
+            # 如果是未知类型，返回未知类型
+            if operand_type.类型值 == 基本类型枚举.未知:
+                return self.未知类型
+            # 数值类型可以取负
+            if operand_type.is_numeric():
+                return operand_type
         return None
     
     def _一元非类型规则(self, operand_type: 类型) -> Optional[类型]:
         """一元非类型规则"""
         if isinstance(operand_type, 基本类型):
+            # 如果是未知类型，返回布尔值类型
+            if operand_type.类型值 == 基本类型枚举.未知:
+                return self.布尔值类型
             # 布尔值可以取非
             if operand_type.类型值 == 基本类型枚举.布尔值:
                 return self.布尔值类型

@@ -76,6 +76,16 @@ class Lexer:
                self.current_char != '\n'):
             self.advance()
     
+    def skip_line_comment(self) -> None:
+        """跳过单行注释"""
+        # 跳过 '//'
+        self.advance()
+        self.advance()
+        
+        # 读取到行尾
+        while self.current_char is not None and self.current_char != '\n':
+            self.advance()
+    
     def read_number(self) -> Token:
         """
         读取数字（整数或浮点数）
@@ -222,6 +232,11 @@ class Lexer:
             # 标识符和关键字
             if self.current_char.isalpha() or self.current_char == '_':
                 return self.read_identifier()
+            
+            # 注释处理
+            if self.current_char == '/' and self.peek() == '/':
+                self.skip_line_comment()
+                continue
             
             # 双字符运算符
             if self.current_char == '=' and self.peek() == '=':

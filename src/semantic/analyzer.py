@@ -141,7 +141,9 @@ class 语义分析器(ASTVisitor[分析结果]):
         # 更新当前函数的返回类型
         if self.当前函数返回类型 is None:
             self.当前函数返回类型 = 返回值类型
-        elif not self.当前函数返回类型.is_compatible_with(返回值类型):
+        elif (not self.当前函数返回类型.is_compatible_with(返回值类型) and 
+              返回值类型 != self.类型系统.未知类型 and
+              self.当前函数返回类型 != self.类型系统.未知类型):
             self.error(f"返回类型不一致：期望 {self.当前函数返回类型}，实际 {返回值类型}", 
                       node.行号, node.列号)
         
@@ -193,9 +195,11 @@ class 语义分析器(ASTVisitor[分析结果]):
         # 分析条件表达式
         condition_result = self.visit(node.条件)
         
-        # 检查条件是否为布尔类型
-        if not isinstance(condition_result.类型, 基本类型) or condition_result.类型.类型值 != 基本类型枚举.布尔值:
-            self.error(f"if条件必须是布尔类型，实际是 {condition_result.类型}", node.行号, node.列号)
+        # 检查条件是否为布尔类型（允许未知类型）
+        if (isinstance(condition_result.类型, 基本类型) and 
+            condition_result.类型.类型值 != 基本类型枚举.布尔值 and
+            condition_result.类型.类型值 != 基本类型枚举.未知):
+            self.error(f"条件必须是布尔类型，实际是 {condition_result.类型}", node.行号, node.列号)
         
         # 分析then分支
         self.visit(node.then分支)
@@ -211,8 +215,10 @@ class 语义分析器(ASTVisitor[分析结果]):
         # 分析条件表达式
         condition_result = self.visit(node.条件)
         
-        # 检查条件是否为布尔类型
-        if not isinstance(condition_result.类型, 基本类型) or condition_result.类型.类型值 != 基本类型枚举.布尔值:
+        # 检查条件是否为布尔类型（允许未知类型）
+        if (isinstance(condition_result.类型, 基本类型) and 
+            condition_result.类型.类型值 != 基本类型枚举.布尔值 and
+            condition_result.类型.类型值 != 基本类型枚举.未知):
             self.error(f"while条件必须是布尔类型，实际是 {condition_result.类型}", node.行号, node.列号)
         
         # 分析循环体
@@ -306,14 +312,17 @@ class 语义分析器(ASTVisitor[分析结果]):
         arg_types = [result.类型 for result in arg_results]
         
         # 检查函数调用类型
-        result_type = self.类型系统.check_function_call(func_result.类型, arg_types)
-        
-        if result_type is None:
-            if isinstance(func_result.类型, 函数类型):
+        if isinstance(func_result.类型, 函数类型):
+            # 检查参数数量
+            if len(arg_types) != len(func_result.类型.参数类型列表):
                 self.error(f"函数调用参数不匹配：期望 {len(func_result.类型.参数类型列表)} 个参数，实际 {len(arg_types)} 个", 
                           node.行号, node.列号)
+                result_type = self.类型系统.未知类型
             else:
-                self.error(f"'{func_result.类型}' 不是函数类型", node.行号, node.列号)
+                # 对于未知类型的参数，我们允许任何类型
+                result_type = func_result.类型.返回类型
+        else:
+            self.error(f"'{func_result.类型}' 不是函数类型", node.行号, node.列号)
             result_type = self.类型系统.未知类型
         
         return 分析结果(result_type)

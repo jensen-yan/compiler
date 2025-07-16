@@ -52,14 +52,6 @@ class TestTypeSystem:
     def test_binary_operations(self):
         """测试二元运算类型检查"""
         type_system = 类型系统()
-        
-        # 整数加法
-        result = type_system.check_binary_operation(
-            type_system.整数类型, 
-            type_system.二元运算符类型规则.__class__.__dict__['加'], 
-            type_system.整数类型
-        )
-        # 这个测试需要用实际的TokenType
         from src.lexer.token import TokenType
         
         # 整数 + 整数 = 整数
