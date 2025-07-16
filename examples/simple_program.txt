@@ -1,0 +1,13 @@
+func add(a, b) {
+    return a + b;
+}
+
+x = 123;
+y = 456;
+result = add(x, y);
+
+if (result > 500) {
+    print("结果很大");
+} else {
+    print("结果较小");
+}
